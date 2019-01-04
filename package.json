@@ -1,11 +1,21 @@
 {
   "name": "fitssey-api",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Fitssey API connection",
+  "homepage": "https://github.com/MaartenBruggink/fittsey-api",
+  "bugs": "https://github.com/MaartenBruggink/fittsey-api/issues",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "keywords": [
+    "fitssey",
+    "api"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/MaartenBruggink/fittsey-api"
   },
+  "contributors": [
+    "Maarten Bruggink <hello@maarten.cool> (https://maarten.cool/)"
+  ],
   "author": "Maarten Bruggink",
   "license": "ISC",
   "dependencies": {
