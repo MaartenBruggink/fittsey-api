@@ -1,13 +1,14 @@
 {
   "name": "fitssey-api",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Fitssey API connection",
   "homepage": "https://github.com/MaartenBruggink/fittsey-api",
   "bugs": "https://github.com/MaartenBruggink/fittsey-api/issues",
   "main": "index.js",
   "keywords": [
     "fitssey",
-    "api"
+    "api",
+    "rest"
   ],
   "repository": {
     "type": "git",

@@ -11,7 +11,8 @@ class FitsseyApi {
         guid = '',
         source = '',
         cache = true,
-        cacheTTL: stdTTL = 1800,
+        cacheTTF: stdTTF = (60 * 60 * 12),
+        cacheTTL: stdTTL = (60 * 60 * 24),
         cacheChecKPeriod: checkperiod = 120,
     }) {
         this.config = {
@@ -20,6 +21,7 @@ class FitsseyApi {
             key: key,
             guid: guid,
             source: source !== '' ? source : uuid,
+            cacheTTF: stdTTF,
         }
 
         this.cache = cache ? new NodeCache({
@@ -41,7 +43,7 @@ class FitsseyApi {
         }
     }
 
-    async request( method = '', {
+    async formatRequest( method = '', {
         endpoint = '',
         data = false,
     }) {
@@ -60,24 +62,34 @@ class FitsseyApi {
 
     // ---- Cache -----
 
-    getFromCache( uid, requestParams ) {
+    async getFromCache( uid, requestParams ) {
         if ( ! this.cache ) return axios(requestParams)
 
-        return new Promise(( resolve, reject ) => {
-            this.cache.get( uid, ( err, value ) => {
+        const now = +new Date();
+        const value = await this.cache.get( uid );
 
-                if( ! err && value ) {
-                    const parsedData = JSON.parse( value )
-                    return resolve( parsedData )
-                }
+        if ( value ) {
+            const parsedData = await JSON.parse( value )
 
-                return axios(requestParams).then( data => {
-                    this.setInCache ( uid, data );
-                    return resolve(data )
-                } )
-            })
+            const { _ttf, ...data } = parsedData
 
-        })
+            if ( _ttf && _ttf < now ) this.makeRequest( uid, requestParams, now)
+            return data
+        }
+
+        const data = await this.makeRequest(uid, requestParams, now);
+        return data
+    }
+
+    async makeRequest(uid, params, now) {
+        const data = await axios(params);
+
+        this.setInCache( uid, {
+            _ttf: now + (this.config.cacheTTF * 1000),
+            ...data,
+        } );
+
+        return data
     }
 
     setInCache( uid, data ) {
@@ -88,40 +100,40 @@ class FitsseyApi {
     // ---- Requests -----
 
     get( endpoint = '', data = false ) {
-        return this.request( 'get', {
+        return this.formatRequest( 'get', {
             endpoint,
             data,
         })
     }
 
     post( endpoint = '', data = false ) {
-        return this.request( 'post', {
+        return this.formatRequest( 'post', {
             endpoint,
             data,
         })
     }
 
     put( endpoint = '', data = false ) {
-        return this.request( 'put', {
+        return this.formatRequest( 'put', {
             endpoint,
             data,
         })
     }
 
     patch( endpoint = '', data = false ) {
-        return this.request( 'patch', {
+        return this.formatRequest( 'patch', {
             endpoint,
             data,
         })
     }
 
     delete( endpoint = '', data = false ) {
-        return this.request( 'delete', {
+        return this.formatRequest( 'delete', {
             endpoint,
             data,
         })
     }
-    
+
 }
 
 exports = module.exports = FitsseyApi
